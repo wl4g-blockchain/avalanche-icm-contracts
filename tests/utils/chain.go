@@ -568,8 +568,16 @@ func NewSignatureAggregator(apiUri string, l1IDs []ids.ID) *aggregator.Signature
 	Expect(err).Should(BeNil())
 
 	networkRegistry := prometheus.NewRegistry()
+	logger := logging.NewLogger(
+		"p2p-network",
+		logging.NewWrappedCore(
+			logging.Error,
+			os.Stdout,
+			logging.Plain.ConsoleEncoder(),
+		),
+	)
 	appRequestNetwork, err := peers.NewNetwork(
-		logging.Error,
+		logger,
 		networkRegistry,
 		trackedL1s,
 		nil,
