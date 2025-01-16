@@ -180,6 +180,34 @@ abstract contract PoSValidatorManager is
     }
 
     /**
+     * @notice Returns validator parameters enforced by the validator manager.
+     */
+    function getValidatorParameters()
+        public
+        view
+        returns (
+            uint256 minimumStakeAmount,
+            uint256 maximumStakeAmount,
+            uint64 minimumStakeDuration,
+            uint16 minimumDelegationFeeBips,
+            uint64 maximumStakeMultiplier,
+            uint256 weightToValueFactor,
+            IRewardCalculator rewardCalculator
+        )
+    {
+        PoSValidatorManagerStorage storage $ = _getPoSValidatorManagerStorage();
+        return (
+            $._minimumStakeAmount,
+            $._maximumStakeAmount,
+            $._minimumStakeDuration,
+            $._minimumDelegationFeeBips,
+            $._maximumStakeMultiplier,
+            $._weightToValueFactor,
+            $._rewardCalculator
+        );
+    }
+
+    /**
      * @notice See {IPoSValidatorManager-submitUptimeProof}.
      */
     function submitUptimeProof(bytes32 validationID, uint32 messageIndex) external {
