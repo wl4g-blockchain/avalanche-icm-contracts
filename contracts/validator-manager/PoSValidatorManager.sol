@@ -181,6 +181,15 @@ abstract contract PoSValidatorManager is
 
     /**
      * @notice Returns validator parameters enforced by the validator manager.
+     *
+     * @return minimumStakeAmount The minimum amount of stake required to register a validator.
+     * @return maximumStakeAmount The maximum amount that a validator may stake on registration.
+     * @return minimumStakeDuration The minimum amount of time that a validator must stake for.
+     * @return minimumDelegationFeeBips The minimum delegation fee percentage, in basis points, required to delegate to a validator.
+     * @return maximumStakeMultiplier The amount of total stake that may be attributed to the validator through delegations,
+     * as a factor of the initial stake.
+     * @return weightToValueFactor The factor used to convert between validator weight and staked amount value.
+     * @return rewardCalculator The reward calculator used to calculate rewards for validators and delegators.
      */
     function getValidatorParameters()
         public
