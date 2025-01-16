@@ -144,6 +144,16 @@ abstract contract ValidatorManager is Initializable, ContextUpgradeable, IValida
     }
 
     /**
+     * @notice Exposes the ValidatorManager's settings.
+     */
+    function getSettings() public view returns (ValidatorManagerSettings memory settings) {
+        ValidatorManagerStorage storage $ = _getValidatorManagerStorage();
+        settings.subnetID = $._subnetID;
+        settings.churnPeriodSeconds = $._churnPeriodSeconds;
+        settings.maximumChurnPercentage = $._maximumChurnPercentage;
+    }
+
+    /**
      * @notice See {IValidatorManager-initializeValidatorSet}.
      */
     function initializeValidatorSet(

@@ -180,6 +180,22 @@ abstract contract PoSValidatorManager is
     }
 
     /**
+     * @notice Exposes the PoSValidatorManager's settings.
+     */
+    function getPoSSettings() public view returns (PoSValidatorManagerSettings memory settings) {
+        PoSValidatorManagerStorage storage $ = _getPoSValidatorManagerStorage();
+        settings.baseSettings = getSettings();
+        settings.minimumStakeAmount = $._minimumStakeAmount;
+        settings.maximumStakeAmount = $._maximumStakeAmount;
+        settings.minimumStakeDuration = $._minimumStakeDuration;
+        settings.minimumDelegationFeeBips = $._minimumDelegationFeeBips;
+        settings.maximumStakeMultiplier = uint8($._maximumStakeMultiplier);
+        settings.weightToValueFactor = $._weightToValueFactor;
+        settings.rewardCalculator = $._rewardCalculator;
+        settings.uptimeBlockchainID = $._uptimeBlockchainID;
+    }
+
+    /**
      * @notice See {IPoSValidatorManager-submitUptimeProof}.
      */
     function submitUptimeProof(bytes32 validationID, uint32 messageIndex) external {
