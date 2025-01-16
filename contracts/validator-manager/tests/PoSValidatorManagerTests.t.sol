@@ -1938,8 +1938,7 @@ abstract contract PoSValidatorManagerTest is ValidatorManagerTest {
             uint256 maximumStakeAmount,
             uint64 minimumStakeDuration,
             uint16 minimumDelegationFeeBips,
-            uint64 maximumStakeMultiplier,
-            uint256 weightToValueFactor,
+            uint64 maximumStakeMultiplier
         ) = posValidatorManager.getValidatorParameters();
 
         PoSValidatorManagerSettings memory settings = _defaultPoSSettings();
@@ -1948,7 +1947,6 @@ abstract contract PoSValidatorManagerTest is ValidatorManagerTest {
         assertEq(minimumStakeDuration, settings.minimumStakeDuration);
         assertEq(minimumDelegationFeeBips, settings.minimumDelegationFeeBips);
         assertEq(maximumStakeMultiplier, settings.maximumStakeMultiplier);
-        assertEq(weightToValueFactor, settings.weightToValueFactor);
     }
 
     function _initializeValidatorRegistration(

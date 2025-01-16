@@ -180,7 +180,7 @@ abstract contract PoSValidatorManager is
     }
 
     /**
-     * @notice Returns validator parameters enforced by the validator manager.
+     * @notice Returns validator parameters enforced by the validator manager when registering or removing a validator
      *
      * @return minimumStakeAmount The minimum amount of stake required to register a validator.
      * @return maximumStakeAmount The maximum amount that a validator may stake on registration.
@@ -188,8 +188,6 @@ abstract contract PoSValidatorManager is
      * @return minimumDelegationFeeBips The minimum delegation fee percentage, in basis points, required to delegate to a validator.
      * @return maximumStakeMultiplier The amount of total stake that may be attributed to the validator through delegations,
      * as a factor of the initial stake.
-     * @return weightToValueFactor The factor used to convert between validator weight and staked amount value.
-     * @return rewardCalculator The reward calculator used to calculate rewards for validators and delegators.
      */
     function getValidatorParameters()
         public
@@ -199,9 +197,7 @@ abstract contract PoSValidatorManager is
             uint256 maximumStakeAmount,
             uint64 minimumStakeDuration,
             uint16 minimumDelegationFeeBips,
-            uint64 maximumStakeMultiplier,
-            uint256 weightToValueFactor,
-            IRewardCalculator rewardCalculator
+            uint64 maximumStakeMultiplier
         )
     {
         PoSValidatorManagerStorage storage $ = _getPoSValidatorManagerStorage();
@@ -210,9 +206,7 @@ abstract contract PoSValidatorManager is
             $._maximumStakeAmount,
             $._minimumStakeDuration,
             $._minimumDelegationFeeBips,
-            $._maximumStakeMultiplier,
-            $._weightToValueFactor,
-            $._rewardCalculator
+            $._maximumStakeMultiplier
         );
     }
 
