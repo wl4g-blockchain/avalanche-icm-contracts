@@ -207,22 +207,10 @@ func (n *LocalNetwork) ConvertSubnetPoAV1(
 	// Reset the global binary data for better test isolation
 	poavalidatormanager.PoAValidatorManagerBin = poavalidatormanager.PoAValidatorManagerMetaData.Bin
 
-	vdrManagerAddress, tx, poaValidatorManager, err := poavalidatormanager.DeployPoAValidatorManager(
+	vdrManagerAddress, tx, _, err := poavalidatormanager.DeployPoAValidatorManager(
 		opts,
 		l1.RPCClient,
 		0, // ICMInitializable.Allowed
-	)
-	Expect(err).Should(BeNil())
-	utils.WaitForTransactionSuccess(ctx, l1, tx.Hash())
-
-	tx, err = poaValidatorManager.Initialize(
-		opts,
-		poavalidatormanager.ValidatorManagerSettings{
-			L1ID:                   l1.SubnetID,
-			ChurnPeriodSeconds:     uint64(0),
-			MaximumChurnPercentage: uint8(20),
-		},
-		utils.PrivateKeyToAddress(senderKey),
 	)
 	Expect(err).Should(BeNil())
 	utils.WaitForTransactionSuccess(ctx, l1, tx.Hash())
@@ -240,6 +228,20 @@ func (n *LocalNetwork) ConvertSubnetPoAV1(
 		Address:    vdrManagerAddress,
 		ProxyAdmin: vdrManagerProxyAdmin,
 	}
+
+	poaValidatorManager, err := poavalidatormanager.NewPoAValidatorManager(vdrManagerAddress, l1.RPCClient)
+	Expect(err).Should(BeNil())
+	tx, err = poaValidatorManager.Initialize(
+		opts,
+		poavalidatormanager.ValidatorManagerSettings{
+			L1ID:                   l1.SubnetID,
+			ChurnPeriodSeconds:     uint64(0),
+			MaximumChurnPercentage: uint8(20),
+		},
+		utils.PrivateKeyToAddress(senderKey),
+	)
+	Expect(err).Should(BeNil())
+	utils.WaitForTransactionSuccess(ctx, l1, tx.Hash())
 
 	tmpnetNodes := n.GetExtraNodes(len(weights))
 	sort.Slice(tmpnetNodes, func(i, j int) bool {

@@ -69,7 +69,7 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 		[]uint64{units.Schmeckle, 1000 * units.Schmeckle}, // Choose weights to avoid validator churn limits
 		ownerKey,
 	)
-	validatorManagerProxy, proxyAdmin := network.GetValidatorManager(l1AInfo.SubnetID)
+	validatorManagerProxy, _ := network.GetValidatorManager(l1AInfo.SubnetID)
 	poaValidatorManager, err := poavalidatormanager.NewPoAValidatorManager(validatorManagerProxy.Address, l1AInfo.RPCClient)
 	Expect(err).Should(BeNil())
 
@@ -149,9 +149,18 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 	validatorManagerAddress, _ := utils.DeployValidatorManager(ctx, ownerKey, l1AInfo, false)
 	opts, err = bind.NewKeyedTransactorWithChainID(ownerKey, l1AInfo.EVMChainID)
 	Expect(err).Should(BeNil())
-	tx, err := proxyAdmin.UpgradeAndCall(opts, validatorManagerProxy.Address, validatorManagerAddress, []byte{})
+
+	tx, err := validatorManagerProxy.ProxyAdmin.UpgradeAndCall(opts, validatorManagerProxy.Address, validatorManagerAddress, []byte{})
 	Expect(err).Should(BeNil())
 	utils.WaitForTransactionSuccess(ctx, l1AInfo, tx.Hash())
+
+	// Migrate already registered validators to the new ValidatorManager version
+	validatorManager, err := validatormanager.NewValidatorManager(validatorManagerProxy.Address, l1AInfo.RPCClient)
+	Expect(err).Should(BeNil())
+
+	opts, err = bind.NewKeyedTransactorWithChainID(ownerKey, l1AInfo.EVMChainID)
+	Expect(err).Should(BeNil())
+	validatorManager.MigrateFromV1PoA(opts, poaValidationID)
 
 	// Deploy StakingManager contract
 	stakingManagerAddress, _ := utils.DeployAndInitializeValidatorManagerSpecialization(
@@ -180,9 +189,6 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 	tx, err = ownable.TransferOwnership(opts, stakingManagerAddress)
 	Expect(err).Should(BeNil())
 	utils.WaitForTransactionSuccess(context.Background(), l1AInfo, tx.Hash())
-
-	validatorManager, err := validatormanager.NewValidatorManager(validatorManagerProxy.Address, l1AInfo.RPCClient)
-	Expect(err).Should(BeNil())
 
 	// Check that previous validator is still registered
 	validationID, err := validatorManager.RegisteredValidators(&bind.CallOpts{}, poaNodeID)
