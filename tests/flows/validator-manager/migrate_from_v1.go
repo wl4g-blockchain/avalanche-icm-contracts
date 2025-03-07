@@ -179,14 +179,6 @@ func MigrateFromV1PoA(network *localnetwork.LocalNetwork) {
 	Expect(err).Should(BeNil())
 	utils.WaitForTransactionSuccess(ctx, l1AInfo, tx.Hash())
 
-	// Migrate already registered validators to the new ValidatorManager version
-	validatorManager, err := validatormanager.NewValidatorManager(validatorManagerProxy.Address, l1AInfo.RPCClient)
-	Expect(err).Should(BeNil())
-
-	opts, err = bind.NewKeyedTransactorWithChainID(ownerKey, l1AInfo.EVMChainID)
-	Expect(err).Should(BeNil())
-	validatorManager.MigrateFromV1(opts, poaValidationID, 0)
-
 	// Deploy StakingManager contract
 	stakingManagerAddress, _ := utils.DeployAndInitializeValidatorManagerSpecialization(
 		ctx,
@@ -216,6 +208,10 @@ func MigrateFromV1PoA(network *localnetwork.LocalNetwork) {
 	utils.WaitForTransactionSuccess(context.Background(), l1AInfo, tx.Hash())
 
 	// Check that previous validator is still registered
+	// Migrate already registered validators to the new ValidatorManager version
+	validatorManager, err := validatormanager.NewValidatorManager(validatorManagerProxy.Address, l1AInfo.RPCClient)
+	Expect(err).Should(BeNil())
+
 	validationID, err := validatorManager.RegisteredValidators(&bind.CallOpts{}, poaNodeID)
 	Expect(err).Should(BeNil())
 	Expect(validationID[:]).Should(Equal(poaValidationID[:]))
@@ -226,10 +222,35 @@ func MigrateFromV1PoA(network *localnetwork.LocalNetwork) {
 	Expect(subnetID[:]).Should(Equal(l1AInfo.SubnetID[:]))
 
 	//
-	// Remove the PoA validator and re-register as a PoS validator
+	// Attempt to remove the PoA validator before migrating it
 	//
 	posStakingManager, err := istakingmanager.NewIStakingManager(stakingManagerAddress, l1AInfo.RPCClient)
 	Expect(err).Should(BeNil())
+
+	opts, err = bind.NewKeyedTransactorWithChainID(ownerKey, l1AInfo.EVMChainID)
+	Expect(err).Should(BeNil())
+	tx, err = posStakingManager.ForceInitiateValidatorRemoval(
+		opts,
+		validationID,
+		false,
+		0,
+	)
+	Expect(err.Error()).Should(ContainSubstring("reverted"))
+
+	//
+	// Migrate the validator
+	//
+
+	opts, err = bind.NewKeyedTransactorWithChainID(ownerKey, l1AInfo.EVMChainID)
+	Expect(err).Should(BeNil())
+	tx, err = validatorManager.MigrateFromV1(opts, poaValidationID, 0)
+	Expect(err).Should(BeNil())
+	utils.WaitForTransactionSuccess(ctx, l1AInfo, tx.Hash())
+
+	//
+	// Remove the PoA validator and re-register as a PoS validator
+	//
+
 	utils.InitiateAndCompleteEndPoSValidation(
 		ctx,
 		signatureAggregator,
