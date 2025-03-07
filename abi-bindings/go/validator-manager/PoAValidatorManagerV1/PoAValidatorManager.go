@@ -1,5 +1,7 @@
-// Code generated - DO NOT EDIT.
-// This file is a generated binding and any manual changes will be lost.
+/* ABI bindings for v1 PoAValidatorManager, generated at tag validator-manager-v1.0.0, commit 046ca6d83c07c4cffecf61c06f4156b8b08725cc
+ *
+ * FOR TESTING PURPOSES ONLY - DO NOT USE IN PRODUCTION
+ */
 
 package poavalidatormanager
 
