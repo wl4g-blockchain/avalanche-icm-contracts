@@ -339,6 +339,7 @@ func InitializeValidatorSet(
 	}
 
 	Expect(initialValidatorCreatedEvent.Weight).Should(Equal(nodes[0].Weight))
+	Expect(initialValidatorCreatedEvent.SubnetID).Should(Equal(l1Info.SubnetID))
 
 	emittedValidationID := ids.ID(initialValidatorCreatedEvent.ValidationID)
 	Expect(emittedValidationID).Should(Equal(validationIDs[0]))

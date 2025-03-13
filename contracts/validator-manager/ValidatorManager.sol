@@ -270,7 +270,11 @@ contract ValidatorManager is Initializable, OwnableUpgradeable, ACP99Manager {
             totalWeight += initialValidator.weight;
 
             emit RegisteredInitialValidator(
-                validationID, _fixedNodeID(initialValidator.nodeID), initialValidator.weight, i
+                validationID,
+                _fixedNodeID(initialValidator.nodeID),
+                conversionData.subnetID,
+                initialValidator.weight,
+                i
             );
         }
         $._churnTracker.totalWeight = totalWeight;

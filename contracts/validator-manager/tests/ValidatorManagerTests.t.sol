@@ -59,7 +59,11 @@ abstract contract ValidatorManagerTest is Test {
     uint64 public nodeIDCounter = 0;
 
     event RegisteredInitialValidator(
-        bytes32 indexed validationID, bytes20 indexed nodeID, uint64 weight, uint32 index
+        bytes32 indexed validationID,
+        bytes20 indexed nodeID,
+        bytes32 indexed subnetID,
+        uint64 weight,
+        uint32 index
     );
 
     event InitiatedValidatorRegistration(

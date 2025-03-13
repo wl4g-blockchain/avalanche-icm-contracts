@@ -82,7 +82,11 @@ abstract contract ACP99Manager {
      * when removing the validator
      */
     event RegisteredInitialValidator(
-        bytes32 indexed validationID, bytes20 indexed nodeID, uint64 weight, uint32 index
+        bytes32 indexed validationID,
+        bytes20 indexed nodeID,
+        bytes32 indexed subnetID,
+        uint64 weight,
+        uint32 index
     );
     /**
      * @notice Emitted when a validator registration to the L1 is initiated.
