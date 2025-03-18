@@ -178,7 +178,7 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 
 	validator, err := validatorManager.GetValidator(&bind.CallOpts{}, validationID)
 	Expect(err).Should(BeNil())
-	Expect(validator.EndTime).Should(Equal(0))
+	Expect(validator.EndTime).Should(Equal(uint64(0)))
 
 	//
 	// Remove the PoA validator and re-register as a PoS validator
