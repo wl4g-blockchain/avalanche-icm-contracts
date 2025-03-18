@@ -388,6 +388,12 @@ contract ValidatorManager is Initializable, OwnableUpgradeable, ACP99Manager {
                 weight: weight
             })
         );
+
+        // Ensure that this validation ID has not been used before to prevent replays
+        if ($._validationPeriods[validationID].status != ValidatorStatus.Unknown) {
+            revert InvalidValidatorStatus($._validationPeriods[validationID].status);
+        }
+
         $._pendingRegisterValidationMessages[validationID] = registerL1ValidatorMessage;
         $._registeredValidators[nodeID] = validationID;
 
