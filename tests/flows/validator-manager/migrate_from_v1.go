@@ -312,7 +312,8 @@ func convertSubnetPoAV1(
 	l1 interfaces.L1TestInfo,
 	weights []uint64,
 	senderKey *ecdsa.PrivateKey,
-) (proxy network.ProxyAddress,
+) (
+	proxy network.ProxyAddress,
 	nodes []utils.Node,
 	validationIDs []ids.ID,
 ) {
