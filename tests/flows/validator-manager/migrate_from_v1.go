@@ -8,7 +8,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ava-labs/avalanchego/config"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/formatting/address"
 	"github.com/ava-labs/avalanchego/utils/logging"
@@ -430,8 +429,7 @@ func convertSubnetPoAV1(
 		Expect(err).Should(BeNil())
 		for _, node := range n.Network.Nodes {
 			if node.NodeID == vdr.NodeID {
-				port := network.GetTmpnetNodePort(node)
-				node.Flags[config.HTTPPortKey] = port
+				node.RuntimeConfig.ReuseDynamicPorts = true
 				log.Println("Restarting bootstrap node", node.NodeID)
 				n.Network.RestartNode(ctx, logging.NoLog{}, node)
 			}
@@ -512,6 +510,8 @@ func initializeValidatorSetV1(
 		manager.ParseInitialValidatorCreated,
 	)
 	Expect(err).Should(BeNil())
+
+	// Compute the initial validationIDs as the hash of the concatenated subnetID and validator index
 	var validationIDs []ids.ID
 	for i := range nodes {
 		validationIDs = append(validationIDs, l1Info.SubnetID.Append(uint32(i)))
