@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"log"
-	goLog "log"
 	"math/big"
 	"sort"
 	"time"
@@ -318,7 +317,7 @@ func convertSubnetPoAV1(
 	nodes []utils.Node,
 	validationIDs []ids.ID,
 ) {
-	goLog.Println("Converting l1", l1.SubnetID)
+	log.Println("Converting l1", l1.SubnetID)
 	cChainInfo := n.GetPrimaryNetworkInfo()
 	pClient := platformvm.NewClient(cChainInfo.NodeURIs[0])
 	currentValidators, err := pClient.GetCurrentValidators(ctx, l1.SubnetID, nil)
@@ -433,7 +432,7 @@ func convertSubnetPoAV1(
 			if node.NodeID == vdr.NodeID {
 				port := network.GetTmpnetNodePort(node)
 				node.Flags[config.HTTPPortKey] = port
-				goLog.Println("Restarting bootstrap node", node.NodeID)
+				log.Println("Restarting bootstrap node", node.NodeID)
 				n.Network.RestartNode(ctx, logging.NoLog{}, node)
 			}
 		}
@@ -461,12 +460,12 @@ func initializeValidatorSetV1(
 		initialValidators[i] = warpMessage.SubnetToL1ConversionValidatorData{
 			NodeID:       node.NodeID.Bytes(),
 			BLSPublicKey: node.NodePoP.PublicKey,
-			Weight:       nodes[i].Weight,
+			Weight:       node.Weight,
 		}
 		initialValidatorsABI[i] = poavalidatormanager.InitialValidator{
 			NodeID:       node.NodeID.Bytes(),
 			BlsPublicKey: node.NodePoP.PublicKey[:],
-			Weight:       nodes[i].Weight,
+			Weight:       node.Weight,
 		}
 	}
 
@@ -626,15 +625,6 @@ func initializeAndCompletePoAValidatorRegistrationV1(
 	networkID uint32,
 ) ids.ID {
 	// Initiate validator registration
-	// receipt, validationID := InitializePoAValidatorRegistration(
-	// 	ctx,
-	// 	ownerKey,
-	// 	l1Info,
-	// 	node,
-	// 	expiry,
-	// 	validatorManager,
-	// )
-
 	opts, err := bind.NewKeyedTransactorWithChainID(ownerKey, l1Info.EVMChainID)
 	Expect(err).Should(BeNil())
 
