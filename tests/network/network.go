@@ -233,6 +233,8 @@ func (n *LocalNetwork) ConvertSubnet(
 			vdrManagerAddress,
 			managerType,
 			proxy,
+			false,
+			common.Address{},
 		)
 
 		ownable, err := ownableupgradeable.NewOwnableUpgradeable(vdrManagerAddress, l1.RPCClient)

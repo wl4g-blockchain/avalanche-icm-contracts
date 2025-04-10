@@ -151,6 +151,8 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 		validatorManagerProxy.Address,
 		utils.NativeTokenStakingManager,
 		false,
+		true,
+		ownerAddress,
 	)
 
 	utils.AddNativeMinterAdmin(ctx, l1AInfo, fundedKey, stakingManagerAddress)

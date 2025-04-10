@@ -37,9 +37,10 @@ struct ValidatorChurnPeriod {
 
 /**
  * @notice Validator Manager settings, used to initialize the Validator Manager
- * @param The subnetID is the ID of the L1 that the Validator Manager is managing
- * @param The churnPeriodSeconds is the duration of the churn period in seconds
- * @param The maximumChurnPercentage is the maximum percentage of the total weight that can be added or removed in a single churn period
+ * @param admin The initial admin of the Validator Manager
+ * @param subnetID The ID of the L1 that the Validator Manager is managing
+ * @param churnPeriodSeconds The duration of the churn period in seconds
+ * @param maximumChurnPercentage The maximum percentage of the total weight that can be added or removed in a single churn period
  */
 struct ValidatorManagerSettings {
     address admin;

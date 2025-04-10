@@ -71,6 +71,8 @@ abstract contract StakingManager is
         mapping(bytes32 validationID => uint256) _redeemableValidatorRewards;
         /// @notice Maps the validation ID to its reward recipient.
         mapping(bytes32 validationID => address) _rewardRecipients;
+
+        address _poaOwner;
     }
     // solhint-enable private-vars-leading-underscore
 
@@ -128,7 +130,8 @@ abstract contract StakingManager is
 
     // solhint-disable-next-line func-name-mixedcase
     function __StakingManager_init(
-        StakingManagerSettings calldata settings
+        StakingManagerSettings calldata settings,
+        address poaOwner
     ) internal onlyInitializing {
         __ReentrancyGuard_init();
         __StakingManager_init_unchained({
@@ -140,7 +143,8 @@ abstract contract StakingManager is
             maximumStakeMultiplier: settings.maximumStakeMultiplier,
             weightToValueFactor: settings.weightToValueFactor,
             rewardCalculator: settings.rewardCalculator,
-            uptimeBlockchainID: settings.uptimeBlockchainID
+            uptimeBlockchainID: settings.uptimeBlockchainID,
+            poaOwner: poaOwner
         });
     }
 
@@ -154,7 +158,8 @@ abstract contract StakingManager is
         uint8 maximumStakeMultiplier,
         uint256 weightToValueFactor,
         IRewardCalculator rewardCalculator,
-        bytes32 uptimeBlockchainID
+        bytes32 uptimeBlockchainID,
+        address poaOwner
     ) internal onlyInitializing {
         StakingManagerStorage storage $ = _getStakingManagerStorage();
         if (minimumDelegationFeeBips == 0 || minimumDelegationFeeBips > MAXIMUM_DELEGATION_FEE_BIPS)
@@ -195,6 +200,7 @@ abstract contract StakingManager is
         $._weightToValueFactor = weightToValueFactor;
         $._rewardCalculator = rewardCalculator;
         $._uptimeBlockchainID = uptimeBlockchainID;
+        $._poaOwner = poaOwner;
     }
 
     /**
@@ -363,8 +369,13 @@ abstract contract StakingManager is
         // the validator's state.
         Validator memory validator = $._manager.getValidator(validationID);
 
-        // Non-PoS validators are required to boostrap the network, but are not eligible for rewards.
+        // Non-PoS validators may come from the initial validator set on L1 conversion, or from a prior PoA version.
+        // They are not eligible for rewards.
         if (!_isPoSValidator(validationID)) {
+            // If configured, only the PoA owner can end the validation
+            if ($._poaOwner != address(0) && $._poaOwner != _msgSender()) {
+                revert UnauthorizedOwner(_msgSender());
+            }
             return true;
         }
 

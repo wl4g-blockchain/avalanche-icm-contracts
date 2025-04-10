@@ -36,6 +36,13 @@ contract NativeTokenStakingManager is Initializable, StakingManager, INativeToke
         }
     }
 
+    function initializeFromPoA(
+        StakingManagerSettings calldata settings,
+        address poaOwner
+    ) external reinitializer(2) {
+        __NativeTokenStakingManager_init(settings, poaOwner);
+    }
+
     /**
      * @notice Initialize the native token staking manager
      * @dev Uses reinitializer(2) on the PoS staking contracts to make sure after migration from PoA, the PoS contracts can reinitialize with its needed values.
@@ -45,14 +52,15 @@ contract NativeTokenStakingManager is Initializable, StakingManager, INativeToke
     function initialize(
         StakingManagerSettings calldata settings
     ) external reinitializer(2) {
-        __NativeTokenStakingManager_init(settings);
+        __NativeTokenStakingManager_init(settings, address(0));
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __NativeTokenStakingManager_init(
-        StakingManagerSettings calldata settings
+        StakingManagerSettings calldata settings,
+        address poaOwner
     ) internal onlyInitializing {
-        __StakingManager_init(settings);
+        __StakingManager_init(settings, poaOwner);
     }
 
     // solhint-disable-next-line func-name-mixedcase, no-empty-blocks

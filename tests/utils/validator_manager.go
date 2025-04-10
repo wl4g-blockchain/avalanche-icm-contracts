@@ -128,6 +128,8 @@ func DeployAndInitializeValidatorManagerSpecialization(
 	validatorManagerAddress common.Address,
 	managerType ValidatorManagerConcreteType,
 	proxy bool,
+	fromPoA bool,
+	admin common.Address,
 ) (common.Address, *proxyadmin.ProxyAdmin) {
 	opts, err := bind.NewKeyedTransactorWithChainID(senderKey, l1.EVMChainID)
 	Expect(err).Should(BeNil())
@@ -171,21 +173,40 @@ func DeployAndInitializeValidatorManagerSpecialization(
 			uint64(10),
 		)
 
-		tx, err = manager.Initialize(
-			opts,
-			erc20tokenstakingmanager.StakingManagerSettings{
-				Manager:                  validatorManagerAddress,
-				MinimumStakeAmount:       big.NewInt(0).SetUint64(DefaultMinStakeAmount),
-				MaximumStakeAmount:       big.NewInt(0).SetUint64(DefaultMaxStakeAmount),
-				MinimumStakeDuration:     DefaultMinStakeDurationSeconds,
-				MinimumDelegationFeeBips: DefaultMinDelegateFeeBips,
-				MaximumStakeMultiplier:   DefaultMaxStakeMultiplier,
-				WeightToValueFactor:      big.NewInt(0).SetUint64(DefaultWeightToValueFactor),
-				RewardCalculator:         rewardCalculatorAddress,
-				UptimeBlockchainID:       l1.BlockchainID,
-			},
-			erc20Address,
-		)
+		if fromPoA {
+			tx, err = manager.InitializeFromPoA(
+				opts,
+				erc20tokenstakingmanager.StakingManagerSettings{
+					Manager:                  validatorManagerAddress,
+					MinimumStakeAmount:       big.NewInt(0).SetUint64(DefaultMinStakeAmount),
+					MaximumStakeAmount:       big.NewInt(0).SetUint64(DefaultMaxStakeAmount),
+					MinimumStakeDuration:     DefaultMinStakeDurationSeconds,
+					MinimumDelegationFeeBips: DefaultMinDelegateFeeBips,
+					MaximumStakeMultiplier:   DefaultMaxStakeMultiplier,
+					WeightToValueFactor:      big.NewInt(0).SetUint64(DefaultWeightToValueFactor),
+					RewardCalculator:         rewardCalculatorAddress,
+					UptimeBlockchainID:       l1.BlockchainID,
+				},
+				erc20Address,
+				admin,
+			)
+		} else {
+			tx, err = manager.Initialize(
+				opts,
+				erc20tokenstakingmanager.StakingManagerSettings{
+					Manager:                  validatorManagerAddress,
+					MinimumStakeAmount:       big.NewInt(0).SetUint64(DefaultMinStakeAmount),
+					MaximumStakeAmount:       big.NewInt(0).SetUint64(DefaultMaxStakeAmount),
+					MinimumStakeDuration:     DefaultMinStakeDurationSeconds,
+					MinimumDelegationFeeBips: DefaultMinDelegateFeeBips,
+					MaximumStakeMultiplier:   DefaultMaxStakeMultiplier,
+					WeightToValueFactor:      big.NewInt(0).SetUint64(DefaultWeightToValueFactor),
+					RewardCalculator:         rewardCalculatorAddress,
+					UptimeBlockchainID:       l1.BlockchainID,
+				},
+				erc20Address,
+			)
+		}
 		Expect(err).Should(BeNil())
 		WaitForTransactionSuccess(ctx, l1, tx.Hash())
 	case NativeTokenStakingManager:
@@ -222,20 +243,39 @@ func DeployAndInitializeValidatorManagerSpecialization(
 		)
 
 		Expect(err).Should(BeNil())
-		tx, err = manager.Initialize(
-			opts,
-			nativetokenstakingmanager.StakingManagerSettings{
-				Manager:                  validatorManagerAddress,
-				MinimumStakeAmount:       big.NewInt(0).SetUint64(DefaultMinStakeAmount),
-				MaximumStakeAmount:       big.NewInt(0).SetUint64(DefaultMaxStakeAmount),
-				MinimumStakeDuration:     DefaultMinStakeDurationSeconds,
-				MinimumDelegationFeeBips: DefaultMinDelegateFeeBips,
-				MaximumStakeMultiplier:   DefaultMaxStakeMultiplier,
-				WeightToValueFactor:      big.NewInt(0).SetUint64(DefaultWeightToValueFactor),
-				RewardCalculator:         rewardCalculatorAddress,
-				UptimeBlockchainID:       l1.BlockchainID,
-			},
-		)
+
+		if fromPoA {
+			tx, err = manager.InitializeFromPoA(
+				opts,
+				nativetokenstakingmanager.StakingManagerSettings{
+					Manager:                  validatorManagerAddress,
+					MinimumStakeAmount:       big.NewInt(0).SetUint64(DefaultMinStakeAmount),
+					MaximumStakeAmount:       big.NewInt(0).SetUint64(DefaultMaxStakeAmount),
+					MinimumStakeDuration:     DefaultMinStakeDurationSeconds,
+					MinimumDelegationFeeBips: DefaultMinDelegateFeeBips,
+					MaximumStakeMultiplier:   DefaultMaxStakeMultiplier,
+					WeightToValueFactor:      big.NewInt(0).SetUint64(DefaultWeightToValueFactor),
+					RewardCalculator:         rewardCalculatorAddress,
+					UptimeBlockchainID:       l1.BlockchainID,
+				},
+				admin,
+			)
+		} else {
+			tx, err = manager.Initialize(
+				opts,
+				nativetokenstakingmanager.StakingManagerSettings{
+					Manager:                  validatorManagerAddress,
+					MinimumStakeAmount:       big.NewInt(0).SetUint64(DefaultMinStakeAmount),
+					MaximumStakeAmount:       big.NewInt(0).SetUint64(DefaultMaxStakeAmount),
+					MinimumStakeDuration:     DefaultMinStakeDurationSeconds,
+					MinimumDelegationFeeBips: DefaultMinDelegateFeeBips,
+					MaximumStakeMultiplier:   DefaultMaxStakeMultiplier,
+					WeightToValueFactor:      big.NewInt(0).SetUint64(DefaultWeightToValueFactor),
+					RewardCalculator:         rewardCalculatorAddress,
+					UptimeBlockchainID:       l1.BlockchainID,
+				},
+			)
+		}
 		Expect(err).Should(BeNil())
 	}
 	return address, proxyAdmin

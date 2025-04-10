@@ -56,6 +56,14 @@ contract ERC20TokenStakingManager is Initializable, StakingManager, IERC20TokenS
         }
     }
 
+    function initializeFromPoA(
+        StakingManagerSettings calldata settings,
+        IERC20Mintable token,
+        address poaOwner
+    ) external reinitializer(2) {
+        __ERC20TokenStakingManager_init(settings, token, poaOwner);
+    }
+
     /**
      * @notice Initialize the ERC20 token staking manager
      * @dev Uses reinitializer(2) on the PoS staking contracts to make sure after migration from PoA, the PoS contracts can reinitialize with its needed values.
@@ -66,15 +74,16 @@ contract ERC20TokenStakingManager is Initializable, StakingManager, IERC20TokenS
         StakingManagerSettings calldata settings,
         IERC20Mintable token
     ) external reinitializer(2) {
-        __ERC20TokenStakingManager_init(settings, token);
+        __ERC20TokenStakingManager_init(settings, token, address(0));
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __ERC20TokenStakingManager_init(
         StakingManagerSettings calldata settings,
-        IERC20Mintable token
+        IERC20Mintable token,
+        address poaOwner
     ) internal onlyInitializing {
-        __StakingManager_init(settings);
+        __StakingManager_init(settings, poaOwner);
         __ERC20TokenStakingManager_init_unchained(token);
     }
 
