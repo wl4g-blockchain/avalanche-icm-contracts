@@ -37,10 +37,9 @@ contract NativeTokenStakingManager is Initializable, StakingManager, INativeToke
     }
 
     function initializeFromPoA(
-        StakingManagerSettings calldata settings,
-        address poaOwner
+        StakingManagerSettings calldata settings
     ) external reinitializer(2) {
-        __NativeTokenStakingManager_init(settings, poaOwner);
+        __NativeTokenStakingManager_init(settings, true);
     }
 
     /**
@@ -52,15 +51,15 @@ contract NativeTokenStakingManager is Initializable, StakingManager, INativeToke
     function initialize(
         StakingManagerSettings calldata settings
     ) external reinitializer(2) {
-        __NativeTokenStakingManager_init(settings, address(0));
+        __NativeTokenStakingManager_init(settings, false);
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __NativeTokenStakingManager_init(
         StakingManagerSettings calldata settings,
-        address poaOwner
+        bool permissionedPoA
     ) internal onlyInitializing {
-        __StakingManager_init(settings, poaOwner);
+        __StakingManager_init(settings, permissionedPoA);
     }
 
     // solhint-disable-next-line func-name-mixedcase, no-empty-blocks

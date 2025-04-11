@@ -131,7 +131,7 @@ abstract contract StakingManager is
     // solhint-disable-next-line func-name-mixedcase
     function __StakingManager_init(
         StakingManagerSettings calldata settings,
-        address poaOwner
+        bool permissionedPoA
     ) internal onlyInitializing {
         __ReentrancyGuard_init();
         __StakingManager_init_unchained({
@@ -144,7 +144,7 @@ abstract contract StakingManager is
             weightToValueFactor: settings.weightToValueFactor,
             rewardCalculator: settings.rewardCalculator,
             uptimeBlockchainID: settings.uptimeBlockchainID,
-            poaOwner: poaOwner
+            permissionedPoA: permissionedPoA
         });
     }
 
@@ -159,7 +159,7 @@ abstract contract StakingManager is
         uint256 weightToValueFactor,
         IRewardCalculator rewardCalculator,
         bytes32 uptimeBlockchainID,
-        address poaOwner
+        bool permissionedPoA
     ) internal onlyInitializing {
         StakingManagerStorage storage $ = _getStakingManagerStorage();
         if (minimumDelegationFeeBips == 0 || minimumDelegationFeeBips > MAXIMUM_DELEGATION_FEE_BIPS)
@@ -191,6 +191,11 @@ abstract contract StakingManager is
             revert InvalidUptimeBlockchainID(uptimeBlockchainID);
         }
 
+        if (permissionedPoA) {
+            // Only the current PoA owner can modify PoA validators
+            $._poaOwner = manager.owner();
+        }
+
         $._manager = manager;
         $._minimumStakeAmount = minimumStakeAmount;
         $._maximumStakeAmount = maximumStakeAmount;
@@ -200,7 +205,6 @@ abstract contract StakingManager is
         $._weightToValueFactor = weightToValueFactor;
         $._rewardCalculator = rewardCalculator;
         $._uptimeBlockchainID = uptimeBlockchainID;
-        $._poaOwner = poaOwner;
     }
 
     /**

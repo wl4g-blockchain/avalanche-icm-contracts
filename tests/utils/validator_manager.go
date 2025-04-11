@@ -129,7 +129,6 @@ func DeployAndInitializeValidatorManagerSpecialization(
 	managerType ValidatorManagerConcreteType,
 	proxy bool,
 	fromPoA bool,
-	admin common.Address,
 ) (common.Address, *proxyadmin.ProxyAdmin) {
 	opts, err := bind.NewKeyedTransactorWithChainID(senderKey, l1.EVMChainID)
 	Expect(err).Should(BeNil())
@@ -188,7 +187,6 @@ func DeployAndInitializeValidatorManagerSpecialization(
 					UptimeBlockchainID:       l1.BlockchainID,
 				},
 				erc20Address,
-				admin,
 			)
 		} else {
 			tx, err = manager.Initialize(
@@ -258,7 +256,6 @@ func DeployAndInitializeValidatorManagerSpecialization(
 					RewardCalculator:         rewardCalculatorAddress,
 					UptimeBlockchainID:       l1.BlockchainID,
 				},
-				admin,
 			)
 		} else {
 			tx, err = manager.Initialize(

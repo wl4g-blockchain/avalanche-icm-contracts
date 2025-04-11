@@ -152,7 +152,6 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 		utils.NativeTokenStakingManager,
 		false,
 		true,
-		ownerAddress,
 	)
 
 	utils.AddNativeMinterAdmin(ctx, l1AInfo, fundedKey, stakingManagerAddress)
@@ -178,11 +177,24 @@ func PoAMigrationToPoS(network *localnetwork.LocalNetwork) {
 	Expect(err).Should(BeNil())
 	Expect(validationID[:]).Should(Equal(poaValidationID[:]))
 
+	// Attempt to remove a PoA validator from the wrong owner
+	posStakingManager, err := istakingmanager.NewIStakingManager(stakingManagerAddress, l1AInfo.RPCClient)
+	Expect(err).Should(BeNil())
+
+	opts, err = bind.NewKeyedTransactorWithChainID(fundedKey, l1AInfo.EVMChainID)
+	Expect(err).Should(BeNil())
+	tx, err = posStakingManager.ForceInitiateValidatorRemoval(
+		opts,
+		poaValidationID,
+		false,
+		0,
+	)
+	Expect(err).ShouldNot(BeNil())
+
 	//
 	// Remove the PoA validator and re-register as a PoS validator
 	//
-	posStakingManager, err := istakingmanager.NewIStakingManager(stakingManagerAddress, l1AInfo.RPCClient)
-	Expect(err).Should(BeNil())
+
 	utils.InitiateAndCompleteEndPoSValidation(
 		ctx,
 		signatureAggregator,

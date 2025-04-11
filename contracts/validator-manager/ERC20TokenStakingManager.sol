@@ -58,10 +58,9 @@ contract ERC20TokenStakingManager is Initializable, StakingManager, IERC20TokenS
 
     function initializeFromPoA(
         StakingManagerSettings calldata settings,
-        IERC20Mintable token,
-        address poaOwner
+        IERC20Mintable token
     ) external reinitializer(2) {
-        __ERC20TokenStakingManager_init(settings, token, poaOwner);
+        __ERC20TokenStakingManager_init(settings, token, true);
     }
 
     /**
@@ -74,16 +73,16 @@ contract ERC20TokenStakingManager is Initializable, StakingManager, IERC20TokenS
         StakingManagerSettings calldata settings,
         IERC20Mintable token
     ) external reinitializer(2) {
-        __ERC20TokenStakingManager_init(settings, token, address(0));
+        __ERC20TokenStakingManager_init(settings, token, false);
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __ERC20TokenStakingManager_init(
         StakingManagerSettings calldata settings,
         IERC20Mintable token,
-        address poaOwner
+        bool permissionedPoA
     ) internal onlyInitializing {
-        __StakingManager_init(settings, poaOwner);
+        __StakingManager_init(settings, permissionedPoA);
         __ERC20TokenStakingManager_init_unchained(token);
     }
 
