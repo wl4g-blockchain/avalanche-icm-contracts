@@ -193,7 +193,11 @@ abstract contract StakingManager is
 
         if (permissionedPoA) {
             // Only the current PoA owner can modify PoA validators
-            $._poaOwner = manager.owner();
+            address owner = manager.owner();
+            if (_msgSender() != owner) {
+                revert UnauthorizedOwner(_msgSender());
+            }
+            $._poaOwner = owner;
         }
 
         $._manager = manager;
